@@ -225,21 +225,18 @@ def kpi_card(label, value, delta="", positive=True):
     </div>"""
 
 
-# Plotly layout defaults
+# Plotly layout defaults — no magic-underscore keys to avoid Plotly validation conflicts
 DARK = dict(
     paper_bgcolor=CARD,
     plot_bgcolor=BG,
     font=dict(color=TEXT, size=11, family="'Courier New', monospace"),
     margin=dict(t=52, b=44, l=64, r=64),
-    title_font=dict(color=TEXT, size=13),
 )
-_LEGEND = dict(bgcolor="rgba(0,0,0,0)", font=dict(color=TEXT))
 DARK_AX = dict(
     gridcolor=GRID,
     linecolor="rgba(255,255,255,0.1)",
     zerolinecolor="rgba(255,255,255,0.07)",
     tickfont=dict(color=TEXT, size=11),
-    titlefont=dict(color=TEXT, size=11),
 )
 
 # ── HEADER BAND ────────────────────────────────────────────────────────────────
@@ -378,7 +375,7 @@ with tab2:
         yaxis2=dict(**DARK_AX, title="EBITDA Margin %",
                     overlaying="y", side="right", range=[8, 20], showgrid=False),
         legend=dict(orientation="h", yanchor="bottom", y=1.02,
-                    xanchor="right", x=1, **_LEGEND),
+                    xanchor="right", x=1, bgcolor="rgba(0,0,0,0)"),
     )
     st.plotly_chart(fig_rev, use_container_width=True)
     st.caption("Source: Company filings, NSE disclosures")
@@ -433,7 +430,7 @@ with tab3:
         xaxis=dict(**DARK_AX),
         yaxis=dict(**DARK_AX, title="Revenue (₹ Crore)"),
         legend=dict(orientation="h", yanchor="bottom", y=1.02,
-                    xanchor="right", x=1, **_LEGEND),
+                    xanchor="right", x=1, bgcolor="rgba(0,0,0,0)"),
     )
     st.plotly_chart(fig_seg, use_container_width=True)
     st.info(

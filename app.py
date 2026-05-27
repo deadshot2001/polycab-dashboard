@@ -225,19 +225,24 @@ def kpi_card(label, value, delta="", positive=True):
     </div>"""
 
 
-# Plotly layout defaults — no magic-underscore keys to avoid Plotly validation conflicts
-DARK = dict(
-    paper_bgcolor=CARD,
-    plot_bgcolor=BG,
-    font=dict(color=TEXT, size=11, family="'Courier New', monospace"),
-    margin=dict(t=52, b=44, l=64, r=64),
-)
-DARK_AX = dict(
-    gridcolor=GRID,
-    linecolor="rgba(255,255,255,0.1)",
-    zerolinecolor="rgba(255,255,255,0.07)",
-    tickfont=dict(color=TEXT, size=11),
-)
+def _dark(fig, title="", showlegend=True):
+    """Apply Bloomberg dark theme to a Plotly figure."""
+    fig.update_layout(
+        paper_bgcolor=CARD, plot_bgcolor=BG,
+        font=dict(color=TEXT, size=11, family="'Courier New', monospace"),
+        margin=dict(t=52, b=44, l=64, r=64),
+        title=title, showlegend=showlegend,
+    )
+    fig.update_xaxes(
+        gridcolor=GRID, linecolor="rgba(255,255,255,0.1)",
+        zerolinecolor="rgba(255,255,255,0.07)",
+        tickfont=dict(color=TEXT, size=11),
+    )
+    fig.update_yaxes(
+        gridcolor=GRID, linecolor="rgba(255,255,255,0.1)",
+        zerolinecolor="rgba(255,255,255,0.07)",
+        tickfont=dict(color=TEXT, size=11),
+    )
 
 # ── HEADER BAND ────────────────────────────────────────────────────────────────
 price_data       = fetch_price()
@@ -367,16 +372,14 @@ with tab2:
         text=[f"{v}%" for v in EBITDA_MARGIN_PCT],
         textposition="top center", textfont=dict(color=GOLD, size=11),
     ))
+    _dark(fig_rev, "Revenue (₹ Crore) vs EBITDA Margin %")
     fig_rev.update_layout(
-        **DARK,
-        title="Revenue (₹ Crore) vs EBITDA Margin %",
-        xaxis=dict(**DARK_AX),
-        yaxis=dict(**DARK_AX, title="Revenue (₹ Crore)"),
-        yaxis2=dict(**DARK_AX, title="EBITDA Margin %",
-                    overlaying="y", side="right", range=[8, 20], showgrid=False),
+        yaxis2=dict(overlaying="y", side="right", range=[8, 20], showgrid=False),
         legend=dict(orientation="h", yanchor="bottom", y=1.02,
                     xanchor="right", x=1, bgcolor="rgba(0,0,0,0)"),
     )
+    fig_rev.update_yaxes(title_text="Revenue (₹ Crore)", selector=dict(side="left"))
+    fig_rev.update_yaxes(title_text="EBITDA Margin %", selector=dict(side="right"))
     st.plotly_chart(fig_rev, use_container_width=True)
     st.caption("Source: Company filings, NSE disclosures")
 
@@ -389,13 +392,8 @@ with tab2:
         text=[f"₹{v:,} Cr" for v in PAT_CR],
         textposition="outside", textfont=dict(color=TEXT, size=11),
     ))
-    fig_pat.update_layout(
-        **DARK,
-        title="Net Profit After Tax (₹ Crore) — FY23 to FY26",
-        xaxis=dict(**DARK_AX),
-        yaxis=dict(**DARK_AX, title="PAT (₹ Crore)"),
-        showlegend=False,
-    )
+    _dark(fig_pat, "Net Profit After Tax (₹ Crore) — FY23 to FY26", showlegend=False)
+    fig_pat.update_yaxes(title_text="PAT (₹ Crore)")
     st.plotly_chart(fig_pat, use_container_width=True)
 
     m1, m2, m3, m4 = st.columns(4)
@@ -423,15 +421,13 @@ with tab3:
         textposition="inside", insidetextanchor="middle",
         textfont=dict(color="#0d1117", size=11),
     ))
+    _dark(fig_seg, "Revenue by Segment (₹ Crore) — Wires & Cables vs FMEG")
     fig_seg.update_layout(
-        **DARK,
-        title="Revenue by Segment (₹ Crore) — Wires & Cables vs FMEG",
         barmode="stack",
-        xaxis=dict(**DARK_AX),
-        yaxis=dict(**DARK_AX, title="Revenue (₹ Crore)"),
         legend=dict(orientation="h", yanchor="bottom", y=1.02,
                     xanchor="right", x=1, bgcolor="rgba(0,0,0,0)"),
     )
+    fig_seg.update_yaxes(title_text="Revenue (₹ Crore)")
     st.plotly_chart(fig_seg, use_container_width=True)
     st.info(
         "**FMEG (Fast-Moving Electrical Goods):** fans, switches, lighting, solar products, "
@@ -465,13 +461,8 @@ with tab3:
         showarrow=True, arrowhead=2, ax=60, ay=-50,
         font=dict(color=GREEN, size=13), arrowcolor=GREEN,
     )
-    fig_fmeg.update_layout(
-        **DARK,
-        title="FMEG Segment Profit / Loss (₹ Crore)",
-        xaxis=dict(**DARK_AX),
-        yaxis=dict(**DARK_AX, title="Profit / Loss (₹ Crore)"),
-        showlegend=False,
-    )
+    _dark(fig_fmeg, "FMEG Segment Profit / Loss (₹ Crore)", showlegend=False)
+    fig_fmeg.update_yaxes(title_text="Profit / Loss (₹ Crore)")
     st.plotly_chart(fig_fmeg, use_container_width=True)
     st.caption("Project Spring targets FMEG EBITDA margins of 8–10% by FY30")
 
@@ -534,13 +525,9 @@ with tab4:
                      annotation_text=f"Weighted target ₹{WEIGHTED_TARGET:,}",
                      annotation_position="bottom",
                      annotation_font_color=GOLD)
-    fig_sc.update_layout(
-        **DARK,
-        title="FY28E Price Targets vs Current Price (₹)",
-        xaxis=dict(**DARK_AX, title="Price (₹)", range=[0, 16500]),
-        yaxis=dict(**DARK_AX),
-        showlegend=False, height=280,
-    )
+    _dark(fig_sc, "FY28E Price Targets vs Current Price (₹)", showlegend=False)
+    fig_sc.update_layout(height=280)
+    fig_sc.update_xaxes(title_text="Price (₹)", range=[0, 16500])
     st.plotly_chart(fig_sc, use_container_width=True)
 
     upside = round((WEIGHTED_TARGET / CURRENT_PRICE - 1) * 100, 1)
